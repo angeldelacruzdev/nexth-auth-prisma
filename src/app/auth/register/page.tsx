@@ -1,4 +1,36 @@
+"use client";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
+type FormData = {
+  email: string;
+  password: string;
+  confirmPassword?: string;
+};
 export default function RegisterPage() {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<FormData>();
+
+  const router = useRouter();
+
+  const onSubmit = handleSubmit(async (data) => {
+    delete data.confirmPassword;
+
+    const res = await fetch("/api/auth/register", {
+      method: "POST",
+      body: JSON.stringify(data),
+      headers: {
+        "Content-Type": "aplication/json",
+      },
+    });
+
+    if (res.ok) {
+      router.push("/auth/login");
+    }
+  });
   return (
     <div className="container mx-auto px-4">
       <div className="mt-7 flex flex-col items-center justify-center   ">
@@ -24,49 +56,7 @@ export default function RegisterPage() {
             Enter your credentials to get access account
           </div>
           <div className="mt-10">
-            <form action="#">
-              <div className="flex flex-col mb-5">
-                <label
-                  htmlFor="email"
-                  className="mb-1 text-xs tracking-wide text-gray-600"
-                >
-                  Name:
-                </label>
-                <div className="relative">
-                  <div
-                    className="
-              inline-flex
-              items-center
-              justify-center
-              absolute
-              left-0
-              top-0
-              h-full
-              w-10
-              text-gray-400
-            "
-                  >
-                    <i className="fas fa-user text-blue-500" />
-                  </div>
-                  <input
-                    id="email"
-                    type="email"
-                    name="email"
-                    className="
-              text-sm
-              placeholder-gray-500
-              pl-10
-              pr-4
-              rounded-2xl
-              border border-gray-400
-              w-full
-              py-2
-              focus:outline-none focus:border-blue-400
-            "
-                    placeholder="Enter your name"
-                  />
-                </div>
-              </div>
+            <form action="#" onSubmit={onSubmit}>
               <div className="flex flex-col mb-5">
                 <label
                   htmlFor="email"
@@ -91,6 +81,12 @@ export default function RegisterPage() {
                     <i className="fas fa-at text-blue-500" />
                   </div>
                   <input
+                    {...register("email", {
+                      required: {
+                        message: "El email es requerido",
+                        value: true,
+                      },
+                    })}
                     id="email"
                     type="email"
                     name="email"
@@ -108,6 +104,9 @@ export default function RegisterPage() {
                     placeholder="Enter your email"
                   />
                 </div>
+                {errors.email && (
+                  <span className="text-red-500">{errors.email.message}</span>
+                )}
               </div>
               <div className="flex flex-col mb-6">
                 <label
@@ -135,6 +134,12 @@ export default function RegisterPage() {
                     </span>
                   </div>
                   <input
+                    {...register("password", {
+                      required: {
+                        message: "La contraseña es requerida",
+                        value: true,
+                      },
+                    })}
                     id="password"
                     type="password"
                     name="password"
@@ -152,6 +157,67 @@ export default function RegisterPage() {
                     placeholder="Enter your password"
                   />
                 </div>
+                {errors.password && (
+                  <span className="text-red-500">
+                    {errors.password.message}
+                  </span>
+                )}
+              </div>
+              <div className="flex flex-col mb-6">
+                <label
+                  htmlFor="confirmPassword"
+                  className="mb-1 text-xs sm:text-sm tracking-wide text-gray-600"
+                >
+                  Confirm Password:
+                </label>
+                <div className="relative">
+                  <div
+                    className="
+              inline-flex
+              items-center
+              justify-center
+              absolute
+              left-0
+              top-0
+              h-full
+              w-10
+              text-gray-400
+            "
+                  >
+                    <span>
+                      <i className="fas fa-lock text-blue-500" />
+                    </span>
+                  </div>
+                  <input
+                    {...register("confirmPassword", {
+                      required: {
+                        value: true,
+                        message:
+                          "La confirmación de la contgrasña es requerida.",
+                      },
+                    })}
+                    id="confirmPassword"
+                    type="password"
+                    name="confirmPassword"
+                    className="
+              text-sm
+              placeholder-gray-500
+              pl-10
+              pr-4
+              rounded-2xl
+              border border-gray-400
+              w-full
+              py-2
+              focus:outline-none focus:border-blue-400
+            "
+                    placeholder="Confirm your password"
+                  />
+                </div>
+                {errors.confirmPassword && (
+                  <span className="text-red-500">
+                    {errors.confirmPassword.message}
+                  </span>
+                )}
               </div>
               <div className="flex w-full">
                 <button
@@ -207,9 +273,9 @@ export default function RegisterPage() {
           >
             <span className="ml-2">You have an account?</span>
           </a>
-          <a href="#" className="text-xs ml-2 text-blue-500 font-semibold">
+          <Link href={'/auth/login'} className="text-xs ml-2 text-blue-500 font-semibold">
             Login here
-          </a>
+          </Link>
         </div>
       </div>
     </div>

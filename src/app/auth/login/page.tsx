@@ -1,29 +1,85 @@
+"use client";
+import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
+type FormData = {
+  email: string;
+  password: string;
+};
+import { signIn } from "next-auth/react";
+import Link from "next/link";
+
 export default function LoginPage() {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<FormData>();
+
+  const router = useRouter();
+
+  const onSubmit = handleSubmit(async (data) => {
+    const response = await signIn("credentials", {
+      email: data.email,
+      password: data.password,
+      redirect: false,
+    });
+
+    if (response?.error) {
+      alert(response.error);
+    } else {
+      router.push("/dashboard");
+    }
+
+    console.log(response?.status);
+  });
+
   return (
     <div className="container mx-auto px-4">
       <>
         {/* component */}
         <div className=" bg-gray-100 flex flex-col justify-center sm:py-12">
           <div className="p-10 xs:p-0 mx-auto md:w-full md:max-w-md">
-            <h1 className="font-bold text-center text-2xl mb-5">Next Auth</h1>
+            <h1 className="font-bold text-center text-2xl mb-5">Next Auth </h1>
             <div className="bg-white shadow w-full rounded-lg divide-y divide-gray-200">
-              <div className="px-5 py-7">
+              <form action="#" onSubmit={onSubmit} className="px-5 py-7">
                 <label className="font-semibold text-sm text-gray-600 pb-1 block">
                   E-mail
                 </label>
                 <input
-                  type="text"
+                  {...register("email", {
+                    required: {
+                      message: "El email es requerido",
+                      value: true,
+                    },
+                  })}
+                  name="email"
+                  type="email"
                   className="border rounded-lg px-3 py-2 mt-1 mb-5 text-sm w-full"
                 />
+                {errors.email && (
+                  <span className="text-red-500">{errors.email.message}</span>
+                )}
                 <label className="font-semibold text-sm text-gray-600 pb-1 block">
                   Password
                 </label>
                 <input
-                  type="text"
+                  {...register("password", {
+                    required: {
+                      message: "La contraseña es requerida",
+                      value: true,
+                    },
+                  })}
+                  name="password"
+                  type="password"
                   className="border rounded-lg px-3 py-2 mt-1 mb-5 text-sm w-full"
                 />
+                {errors.password && (
+                  <span className="text-red-500">
+                    {errors.password.message}
+                  </span>
+                )}
                 <button
-                  type="button"
+                  type="submit"
                   className="transition duration-200 bg-blue-500 hover:bg-blue-600 focus:bg-blue-700 focus:shadow-sm focus:ring-4 focus:ring-blue-500 focus:ring-opacity-50 text-white w-full py-2.5 rounded-lg text-sm shadow-sm hover:shadow-md font-semibold text-center inline-block"
                 >
                   <span className="inline-block mr-2">Login</span>
@@ -42,7 +98,7 @@ export default function LoginPage() {
                     />
                   </svg>
                 </button>
-              </div>
+              </form>
               <div className="py-5">
                 <div className="grid grid-cols-2 gap-1">
                   <div className="text-center sm:text-left whitespace-nowrap">
@@ -89,7 +145,10 @@ export default function LoginPage() {
             <div className="py-5">
               <div className="grid grid-cols-2 gap-1">
                 <div className="text-center sm:text-left whitespace-nowrap">
-                  <button className="transition duration-200 mx-5 px-5 py-4 cursor-pointer font-normal text-sm rounded-lg text-gray-500 hover:bg-gray-200 focus:outline-none focus:bg-gray-300 focus:ring-2 focus:ring-gray-400 focus:ring-opacity-50 ring-inset">
+                  <Link
+                    href={"/"}
+                    className="transition duration-200 mx-5 px-5 py-4 cursor-pointer font-normal text-sm rounded-lg text-gray-500 hover:bg-gray-200 focus:outline-none focus:bg-gray-300 focus:ring-2 focus:ring-gray-400 focus:ring-opacity-50 ring-inset"
+                  >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       fill="none"
@@ -104,10 +163,8 @@ export default function LoginPage() {
                         d="M10 19l-7-7m0 0l7-7m-7 7h18"
                       />
                     </svg>
-                    <span className="inline-block ml-1">
-                      Back to your-app.com
-                    </span>
-                  </button>
+                    <span className="inline-block ml-1">Back to Home</span>
+                  </Link>
                 </div>
               </div>
             </div>
